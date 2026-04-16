@@ -123,7 +123,7 @@ public class CommandNewObject
 	// /mq e addnew stage
 	private static void addStage(Quest q, Player sender) {
 		List<SimpleQuestObject> l = new ArrayList<>();
-		l.add(new QuestObjectBreakBlock(Material.GRASS, 1));
+		l.add(new QuestObjectBreakBlock(Material.GRASS_BLOCK, 1));
 		q.getStages().add(q.getStages().size(), new QuestStage(l));
 		QuestChatManager.info(sender, I18n.locMsg("EditorMessage.StageCreated"));
 		QuestChatManager.info(sender, I18n.locMsg("EditorMessage.StageCreated2"));
@@ -142,7 +142,7 @@ public class CommandNewObject
 				QuestChatManager.error(sender, I18n.locMsg("EditorMessage.WrongFormat"));
 				return;
 			}
-			q.getStage(stage - 1).getObjects().add(q.getStage(stage - 1).getObjects().size(), new QuestObjectBreakBlock(Material.GRASS, 1));
+			q.getStage(stage - 1).getObjects().add(q.getStage(stage - 1).getObjects().size(), new QuestObjectBreakBlock(Material.GRASS_BLOCK, 1));
 			QuestEditorManager.selectObjectType(sender, stage, q.getStage(stage - 1).getObjects().size());
 		}
 	}

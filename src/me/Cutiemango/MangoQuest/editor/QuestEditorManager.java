@@ -1,6 +1,5 @@
 package me.Cutiemango.MangoQuest.editor;
 
-import com.sucy.skill.SkillAPI;
 import me.Cutiemango.MangoQuest.I18n;
 import me.Cutiemango.MangoQuest.Main;
 import me.Cutiemango.MangoQuest.QuestStorage;
@@ -415,7 +414,7 @@ public class QuestEditorManager
 			p1.add(I18n.locMsg("QuestEditor.SkillAPIReq")).changeLine();
 
 			String classID = q.getRequirements().get(RequirementType.SKILLAPI_CLASS).toString();
-			String displayName = classID.equalsIgnoreCase("none") ? "null" : SkillAPI.getClass(classID).getName();
+			String displayName = classID.equalsIgnoreCase("none") ? "null" : Main.getHooker().getSkillAPIClassName(classID);
 			p1.add(I18n.locMsg("QuestEditor.RPGClassReq", displayName, classID));
 			p1.add(new InteractiveText(I18n.locMsg("QuestEditor.Edit")).clickCommand("/mq e edit req SKILLAPI_CLASS")).changeLine();
 
@@ -433,9 +432,7 @@ public class QuestEditorManager
 			p1.add(I18n.locMsg("QuestEditor.QRPGReq")).changeLine();
 
 			String classID = q.getRequirements().get(RequirementType.QRPG_CLASS).toString();
-			String displayName = classID.equalsIgnoreCase("none") ?
-					"null" :
-					Main.getHooker().getQuantumRPG().getModuleCache().getClassManager().getClassById(classID).getName();
+			String displayName = classID.equalsIgnoreCase("none") ? "null" : Main.getHooker().getQuantumRPGClassName(classID);
 			p1.add(I18n.locMsg("QuestEditor.RPGClassReq", displayName, classID));
 			p1.add(new InteractiveText(I18n.locMsg("QuestEditor.Edit")).clickCommand("/mq e edit req QRPG_CLASS")).changeLine();
 

@@ -72,8 +72,11 @@ public class EditorListenerHandler
 		event.setCancelled(true);
 		if (obj.getType().equals(ListeningType.MTMMOB_LEFT_CLICK)) {
 			DebugHandler.log(5, "[Listener] Object of listening type " + obj.getType().toString() + " triggered.");
-			if (Main.getHooker().hasMythicMobEnabled() && Main.getHooker().getMythicMobsAPI().isMythicMob(e))
-				obj.execute(p, Main.getHooker().getMythicMobsAPI().getMythicMobInstance(e).getType().getInternalName());
+			if (Main.getHooker().hasMythicMobEnabled() && Main.getHooker().isMythicMob(e)) {
+				String mythicMobId = Main.getHooker().getMythicMobId(e);
+				if (mythicMobId != null)
+					obj.execute(p, mythicMobId);
+			}
 		} else if (obj.getType().equals(ListeningType.MOB_LEFT_CLICK)) {
 			DebugHandler.log(5, "[Listener] Object of listening type " + obj.getType().toString() + " triggered.");
 			obj.execute(p, e.getType().toString());

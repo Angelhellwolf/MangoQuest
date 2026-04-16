@@ -1,6 +1,5 @@
 package me.Cutiemango.MangoQuest.questobject.objects;
 
-import io.lumine.xikage.mythicmobs.mobs.MythicMob;
 import me.Cutiemango.MangoQuest.I18n;
 import me.Cutiemango.MangoQuest.Main;
 import me.Cutiemango.MangoQuest.QuestIO;
@@ -9,6 +8,7 @@ import me.Cutiemango.MangoQuest.book.InteractiveText;
 import me.Cutiemango.MangoQuest.book.QuestBookPage;
 import me.Cutiemango.MangoQuest.editor.EditorListenerObject;
 import me.Cutiemango.MangoQuest.editor.EditorListenerObject.ListeningType;
+import me.Cutiemango.MangoQuest.manager.MythicMobInfo;
 import me.Cutiemango.MangoQuest.manager.QuestBookGUIManager;
 import me.Cutiemango.MangoQuest.manager.QuestChatManager;
 import me.Cutiemango.MangoQuest.manager.QuestValidater;
@@ -19,6 +19,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
+import java.util.Locale;
 import java.util.logging.Level;
 
 public class QuestObjectKillMob extends NumerableObject implements EditorObject
@@ -32,11 +33,9 @@ public class QuestObjectKillMob extends NumerableObject implements EditorObject
 		customName = customname;
 	}
 
-	public QuestObjectKillMob(MythicMob mmMob, int i) {
-		mtmMob = mmMob;
+	public QuestObjectKillMob(MythicMobInfo mmMob, int i) {
+		setMythicMob(mmMob);
 		amount = i;
-		type = EntityType.valueOf(mmMob.getEntityType().toUpperCase());
-		customName = mmMob.getDisplayName().get();
 	}
 
 	@Override
@@ -52,7 +51,7 @@ public class QuestObjectKillMob extends NumerableObject implements EditorObject
 	private boolean isBaby = false;
 	private EntityType type;
 	private String customName;
-	private MythicMob mtmMob;
+	private MythicMobInfo mtmMob;
 
 	public EntityType getType() {
 		return type;
@@ -66,7 +65,7 @@ public class QuestObjectKillMob extends NumerableObject implements EditorObject
 		return customName;
 	}
 
-	public MythicMob getMythicMob() {
+	public MythicMobInfo getMythicMob() {
 		return mtmMob;
 	}
 
@@ -78,14 +77,14 @@ public class QuestObjectKillMob extends NumerableObject implements EditorObject
 		return isBaby;
 	}
 
-	public void setMythicMob(MythicMob m) {
+	public void setMythicMob(MythicMobInfo m) {
 		if (m == null)
 			return;
 		mtmMob = m;
-		customName = m.getDisplayName().get();
-		if (mtmMob.getEntityType().contains("BABY"))
-			isBaby = true;
-		type = EntityType.valueOf(mtmMob.getEntityType().replace("BABY_", "").toUpperCase());
+		customName = m.getDisplayName();
+		String entityType = m.getEntityType();
+		isBaby = entityType != null && entityType.toUpperCase(Locale.ROOT).contains("BABY");
+		type = parseEntityType(entityType);
 	}
 
 	public void setType(EntityType t) {
@@ -150,14 +149,7 @@ public class QuestObjectKillMob extends NumerableObject implements EditorObject
 				QuestChatManager.logCmd(Level.WARNING, I18n.locMsg("Cmdlog.MTMMobNotFound", id));
 				return false;
 			}
-			mtmMob = Main.getHooker().getMythicMob(id);
-			customName = mtmMob.getDisplayName().get();
-			String typeName = mtmMob.getEntityType().toUpperCase();
-			if (typeName.contains("BABY")) {
-				isBaby = true;
-				typeName = typeName.replace("BABY_", "");
-			}
-			type = EntityType.valueOf(typeName);
+			setMythicMob(Main.getHooker().getMythicMob(id));
 		} else if (config.getString(path + "MobName") != null) {
 			customName = config.getString(path + "MobName");
 			type = EntityType.valueOf(config.getString(path + "MobType"));
@@ -195,12 +187,6 @@ public class QuestObjectKillMob extends NumerableObject implements EditorObject
 					return false;
 				}
 				setMythicMob(Main.getHooker().getMythicMob(obj));
-				setCustomName(mtmMob.getDisplayName().get());
-				if (mtmMob.getEntityType().contains("baby")) {
-					isBaby = true;
-					setType(EntityType.valueOf(mtmMob.getEntityType().replace("baby_", "").toUpperCase()));
-				} else
-					setType(EntityType.valueOf(mtmMob.getEntityType().toUpperCase()));
 				break;
 			default:
 				return super.receiveCommandInput(sender, type, obj);
@@ -228,6 +214,24 @@ public class QuestObjectKillMob extends NumerableObject implements EditorObject
 				return super.createCommandOutput(sender, command, type);
 		}
 		return obj;
+	}
+
+	private EntityType parseEntityType(String rawType) {
+		if (rawType == null || rawType.isEmpty())
+			return EntityType.ZOMBIE;
+		String typeName = rawType.toUpperCase(Locale.ROOT);
+		int namespaceIndex = typeName.lastIndexOf(':');
+		if (namespaceIndex >= 0)
+			typeName = typeName.substring(namespaceIndex + 1);
+		typeName = typeName.replace("BABY_", "");
+		if (typeName.equals("MUSHROOM_COW"))
+			typeName = "MOOSHROOM";
+		try {
+			return EntityType.valueOf(typeName);
+		}
+		catch (IllegalArgumentException ignored) {
+			return EntityType.ZOMBIE;
+		}
 	}
 
 }

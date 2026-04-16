@@ -1,7 +1,5 @@
 package me.Cutiemango.MangoQuest.objects.reward;
 
-import com.sucy.skill.SkillAPI;
-import com.sucy.skill.api.enums.ExpSource;
 import me.Cutiemango.MangoQuest.I18n;
 import me.Cutiemango.MangoQuest.Main;
 import me.Cutiemango.MangoQuest.QuestUtil;
@@ -206,14 +204,14 @@ public class QuestReward
 
 		if (hasSkillAPIExp()) {
 			if (Main.getHooker().hasSkillAPIEnabled()) {
-				SkillAPI.getPlayerData(p).giveExp(skillapiExp, ExpSource.COMMAND);
+				Main.getHooker().giveSkillAPIExp(p, skillapiExp);
 				QuestChatManager.info(p, I18n.locMsg("QuestReward.GiveRPGExpReward", Integer.toString(skillapiExp)));
 			}
 		}
 
 		if (hasQRPGExp()) {
 			if (Main.getHooker().hasQuantumRPGEnabled()) {
-				Main.getHooker().getQuantumRPG().getUserManager().getOrLoadUser(p).getActiveProfile().getClassData().addExp(qrpgExp);
+				Main.getHooker().giveQuantumRPGExp(p, qrpgExp);
 				QuestChatManager.info(p, I18n.locMsg("QuestReward.GiveRPGExpReward", Integer.toString(qrpgExp)));
 			}
 		}

@@ -1,6 +1,5 @@
 package me.Cutiemango.MangoQuest.listeners;
 
-import com.nisovin.shopkeepers.api.ShopkeepersAPI;
 import me.Cutiemango.MangoQuest.ConfigSettings;
 import me.Cutiemango.MangoQuest.DebugHandler;
 import me.Cutiemango.MangoQuest.Main;
@@ -83,7 +82,7 @@ public class PlayerListener
 		// Else the system will try to detect if there are compatible item-delivering quests.
 		if (p.getInventory().getItemInMainHand() == null || p.getInventory().getItemInMainHand().getType() == Material.AIR) {
 			if (Main.getHooker().hasShopkeepersEnabled()) {
-				if (ShopkeepersAPI.getShopkeeperRegistry().isShopkeeper(npc.getEntity())) {
+				if (Main.getHooker().isShopkeeper(npc.getEntity())) {
 					// close the shopkeeper's trading ui, because there's no way we can handle it before it fires
 					p.closeInventory();
 					QuestBookGUIManager.openNPCInfo(p, npc, true);
@@ -94,7 +93,7 @@ public class PlayerListener
 			QuestBookGUIManager.openNPCInfo(p, npc, false);
 			DebugHandler.log(4, "[Listener] Opening NPC info(id=" + npc.getId() + ") for " + p.getName() + "...");
 		} else {
-			if (Main.getHooker().hasShopkeepersEnabled() && ShopkeepersAPI.getShopkeeperRegistry().isShopkeeper(npc.getEntity())) {
+			if (Main.getHooker().hasShopkeepersEnabled() && Main.getHooker().isShopkeeper(npc.getEntity())) {
 				p.closeInventory();
 				DebugHandler.log(4, "[Listener] Shopkeepers NPC detected, closing trading window.");
 			}
@@ -120,10 +119,15 @@ public class PlayerListener
 				attacker = (Player) damager;
 			QuestPlayerData qd = QuestUtil.getData(attacker);
 			if (qd != null) {
-				if (Main.getHooker().hasMythicMobEnabled() && Main.getHooker().getMythicMobsAPI().isMythicMob(e)) {
-					String type = Main.getHooker().getMythicMobsAPI().getMythicMobInstance(e).getType().getInternalName();
-					DebugHandler.log(4, "[Listener] Player " + attacker.getName() + " killed MythicMob, id: %s", type);
-					qd.killMythicMob(type);
+				if (Main.getHooker().hasMythicMobEnabled() && Main.getHooker().isMythicMob(e)) {
+					String type = Main.getHooker().getMythicMobId(e);
+					if (type != null) {
+						DebugHandler.log(4, "[Listener] Player " + attacker.getName() + " killed MythicMob, id: %s", type);
+						qd.killMythicMob(type);
+					} else {
+						DebugHandler.log(4, "[Listener] Player " + attacker.getName() + " killed normal mob: %s", e.getType().toString());
+						qd.killMob(e);
+					}
 				} else {
 					DebugHandler.log(4, "[Listener] Player " + attacker.getName() + " killed normal mob: %s", e.getType().toString());
 					qd.killMob(e);

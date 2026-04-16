@@ -1,7 +1,5 @@
 package me.Cutiemango.MangoQuest.commands;
 
-import com.nisovin.shopkeepers.api.ShopkeepersAPI;
-import com.nisovin.shopkeepers.api.shopkeeper.Shopkeeper;
 import me.Cutiemango.MangoQuest.I18n;
 import me.Cutiemango.MangoQuest.Main;
 import me.Cutiemango.MangoQuest.QuestStorage;
@@ -73,13 +71,10 @@ public class QuestCommand
 					NPC npc = Main.getHooker().getNPC(args[2]);
 					if (npc == null || !QuestUtil.getData(target).isNearNPC(npc))
 						return;
-					if (Main.getHooker().hasShopkeepersEnabled()) {
-						Shopkeeper s = ShopkeepersAPI.getShopkeeperRegistry().getShopkeeperByEntity(npc.getEntity());
-						if (s != null) {
-							target.closeInventory();
-							s.openTradingWindow(target);
-							return;
-						}
+					if (Main.getHooker().hasShopkeepersEnabled() && Main.getHooker().isShopkeeper(npc.getEntity())) {
+						target.closeInventory();
+						Main.getHooker().openShopkeeper(npc.getEntity(), target);
+						return;
 					}
 					return;
 				case "reward":

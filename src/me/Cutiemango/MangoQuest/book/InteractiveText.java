@@ -9,7 +9,6 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 public class InteractiveText
 {
@@ -22,7 +21,7 @@ public class InteractiveText
 	}
 
 	// similar to showItem
-	public InteractiveText(@NotNull ItemStack item) {
+	public InteractiveText(ItemStack item) {
 		text = TextComponentFactory.convertItemHoverEvent(item, false);
 	}
 
@@ -36,7 +35,7 @@ public class InteractiveText
 		return this;
 	}
 
-	public InteractiveText showItem(@NotNull ItemStack item) {
+	public InteractiveText showItem(ItemStack item) {
 		text.addExtra(TextComponentFactory.convertItemHoverEvent(item, false));
 		return this;
 	}
@@ -47,7 +46,7 @@ public class InteractiveText
 		return this;
 	}
 
-	public InteractiveText showNPCInfo(@NotNull NPC npc) {
+	public InteractiveText showNPCInfo(NPC npc) {
 		text.addExtra(TextComponentFactory.convertLocHoverEvent(npc.getName(), npc.getStoredLocation(), false));
 		return this;
 	}

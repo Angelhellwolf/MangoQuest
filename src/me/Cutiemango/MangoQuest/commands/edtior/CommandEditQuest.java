@@ -1,6 +1,5 @@
 package me.Cutiemango.MangoQuest.commands.edtior;
 
-import com.sucy.skill.SkillAPI;
 import me.Cutiemango.MangoQuest.I18n;
 import me.Cutiemango.MangoQuest.Main;
 import me.Cutiemango.MangoQuest.QuestUtil;
@@ -179,14 +178,13 @@ public class CommandEditQuest
 					q.getRequirements().put(t, Boolean.parseBoolean(args[4]));
 					break;
 				case QRPG_CLASS:
-					if (args[4].equalsIgnoreCase("none") || Main.getHooker().getQuantumRPG().getModuleCache().getClassManager()
-							.getClassById(args[4]) != null)
+					if (args[4].equalsIgnoreCase("none") || Main.getHooker().isQuantumRPGClassRegistered(args[4]))
 						q.getRequirements().put(t, args[4]);
 					else
 						QuestChatManager.error(sender, I18n.locMsg("EditorMessage.RPGClassNotValid", args[4]));
 					break;
 				case SKILLAPI_CLASS:
-					if (SkillAPI.isClassRegistered(args[4]))
+					if (Main.getHooker().isSkillAPIClassRegistered(args[4]))
 						q.getRequirements().put(t, args[4]);
 					else
 						QuestChatManager.error(sender, I18n.locMsg("EditorMessage.RPGClassNotValid", args[4]));

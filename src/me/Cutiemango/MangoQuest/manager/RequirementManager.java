@@ -1,7 +1,5 @@
 package me.Cutiemango.MangoQuest.manager;
 
-import com.sucy.skill.SkillAPI;
-import joptsimple.internal.Strings;
 import me.Cutiemango.MangoQuest.ConfigSettings;
 import me.Cutiemango.MangoQuest.DebugHandler;
 import me.Cutiemango.MangoQuest.I18n;
@@ -13,8 +11,6 @@ import me.Cutiemango.MangoQuest.objects.RequirementType;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import su.nightexpress.quantumrpg.data.api.UserProfile;
-import su.nightexpress.quantumrpg.modules.list.classes.api.RPGClass;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -109,35 +105,13 @@ public class RequirementManager
 					if (classID.equalsIgnoreCase("none"))
 						break;
 
-					if (Main.getHooker().hasSkillAPIEnabled() && SkillAPI.hasPlayerData(p) && SkillAPI.getPlayerData(p).getMainClass() != null) {
-						com.sucy.skill.api.classes.RPGClass userClass = SkillAPI.getPlayerData(p).getMainClass().getData(), reqClass = SkillAPI
-								.getClass(classID);
-
-						if (!SkillAPI.isClassRegistered(classID))
+					if (Main.getHooker().hasSkillAPIEnabled()) {
+						if (!Main.getHooker().isSkillAPIClassRegistered(classID))
 							failMsg.add(I18n.locMsg("Requirements.NotMeet.NoClass") + classID);
-						else if (!SkillAPI.getPlayerData(p).isExactClass(reqClass)) {
-							boolean found = false;
-							if ((Boolean) requirements.get(RequirementType.ALLOW_DESCENDANT)) {
-								// We recursively search if user's ascendant class matches the required class.
-								com.sucy.skill.api.classes.RPGClass it = userClass;
-								while (it.getParent() != null) {
-									if (it.getParent().getName().equalsIgnoreCase(classID)) {
-										found = true;
-										if (sendMsg)
-											DebugHandler.log(5, "[Requirements] User has descendant class: %s", classID);
-										break;
-									}
-									it = it.getParent();
-								}
-							}
-							if (!found) {
-								failMsg.add(I18n.locMsg("Requirements.NotMeet.RPGClass", reqClass.getPrefix()));
-								if (sendMsg) {
-									DebugHandler.log(5, "[Requirements] User has failed requirement: " + t.toString());
-									DebugHandler.log(5, "[Requirements] User has the following class: %s, while the required class is %s.", userClass,
-											classID);
-								}
-							}
+						else if (!Main.getHooker().playerHasSkillAPIClass(p, classID, (Boolean) requirements.get(RequirementType.ALLOW_DESCENDANT))) {
+							failMsg.add(I18n.locMsg("Requirements.NotMeet.RPGClass", Main.getHooker().getSkillAPIClassPrefix(classID)));
+							if (sendMsg)
+								DebugHandler.log(5, "[Requirements] User has failed requirement: " + t.toString());
 						}
 					}
 					break;
@@ -146,8 +120,8 @@ public class RequirementManager
 					if (lvl == 0)
 						break;
 
-					else if (Main.getHooker().hasSkillAPIEnabled() && SkillAPI.hasPlayerData(p))
-						if (SkillAPI.getPlayerData(p).getMainClass() == null || SkillAPI.getPlayerData(p).getMainClass().getLevel() < lvl)
+					else if (Main.getHooker().hasSkillAPIEnabled())
+						if (!Main.getHooker().playerHasSkillAPILevel(p, lvl))
 							failMsg.add(I18n.locMsg("Requirements.NotMeet.RPGLevel", Integer.toString(lvl)));
 					break;
 				case QRPG_CLASS:
@@ -156,37 +130,12 @@ public class RequirementManager
 						break;
 
 					if (Main.getHooker().hasQuantumRPGEnabled()) {
-						UserProfile user = Main.getHooker().getQuantumRPG().getUserManager().getOrLoadUser(p).getActiveProfile();
-						String userClassID = user.getClassData().getClassId();
-
-						if (Main.getHooker().getQuantumRPG().getModuleCache().getClassManager().getClassById(classID) == null)
+						if (!Main.getHooker().isQuantumRPGClassRegistered(classID))
 							failMsg.add(I18n.locMsg("Requirements.NotMeet.NoClass") + classID);
-						else if (!classID.equalsIgnoreCase(userClassID)) {
-							RPGClass reqClass = Main.getHooker().getQuantumRPG().getModuleCache().getClassManager()
-									.getClassById(classID), userClass = Main.getHooker().getQuantumRPG().getModuleCache().getClassManager()
-									.getClassById(userClassID);
-
-							boolean found = false;
-							if ((Boolean) requirements.get(RequirementType.ALLOW_DESCENDANT)) {
-								RPGClass it = userClass;
-								while (it.getParent() != null) {
-									if (it.getParent().getId().equalsIgnoreCase(classID)) {
-										found = true;
-										if (sendMsg)
-											DebugHandler.log(5, "[Requirements] User has descendant class: %s", classID);
-										break;
-									}
-									it = it.getParent();
-								}
-							}
-							if (!found) {
-								failMsg.add(I18n.locMsg("Requirements.NotMeet.RPGClass", reqClass.getName()));
-								if (sendMsg) {
-									DebugHandler.log(5, "[Requirements] User has failed requirement: " + t.toString());
-									DebugHandler.log(5, "[Requirements] User has the following class: %s, while the required class is %s.",
-											user.getClassData().getClassId(), classID);
-								}
-							}
+						else if (!Main.getHooker().playerHasQuantumRPGClass(p, classID, (Boolean) requirements.get(RequirementType.ALLOW_DESCENDANT))) {
+							failMsg.add(I18n.locMsg("Requirements.NotMeet.RPGClass", Main.getHooker().getQuantumRPGClassName(classID)));
+							if (sendMsg)
+								DebugHandler.log(5, "[Requirements] User has failed requirement: " + t.toString());
 						}
 					}
 					break;
@@ -195,15 +144,10 @@ public class RequirementManager
 					if (lvl == 0)
 						break;
 					else if (Main.getHooker().hasQuantumRPGEnabled()) {
-						UserProfile user = Main.getHooker().getQuantumRPG().getUserManager().getOrLoadUser(p).getActiveProfile();
-						if (user.getClassData() == null || user.getClassData().getLevel() < lvl) {
+						if (!Main.getHooker().playerHasQuantumRPGLevel(p, lvl)) {
 							failMsg.add(I18n.locMsg("Requirements.NotMeet.RPGLevel", Integer.toString(lvl)));
-							if (sendMsg) {
+							if (sendMsg)
 								DebugHandler.log(5, "[Requirements] User has failed requirement: " + t.toString());
-								DebugHandler
-										.log(5, "[Requirements] User has level %d, while the required level is %d.", user.getClassData().getLevel(),
-												lvl);
-							}
 						}
 					}
 					break;
@@ -220,7 +164,7 @@ public class RequirementManager
 
 		if (failMsg.isEmpty())
 			return Optional.empty();
-		return Optional.of(Strings.join(failMsg, "\n"));
+		return Optional.of(String.join("\n", failMsg));
 	}
 
 }

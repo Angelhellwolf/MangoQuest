@@ -23,15 +23,8 @@ import me.Cutiemango.MangoQuest.manager.ScoreboardManager;
 import me.Cutiemango.MangoQuest.manager.config.QuestConfigManager;
 import me.Cutiemango.MangoQuest.manager.database.DatabaseManager;
 import me.Cutiemango.MangoQuest.questobject.SimpleQuestObject;
+import me.Cutiemango.MangoQuest.versions.ModernVersionHandler;
 import me.Cutiemango.MangoQuest.versions.VersionHandler;
-import me.Cutiemango.MangoQuest.versions.Version_v1_13_R1;
-import me.Cutiemango.MangoQuest.versions.Version_v1_13_R2;
-import me.Cutiemango.MangoQuest.versions.Version_v1_14_R1;
-import me.Cutiemango.MangoQuest.versions.Version_v1_15_R1;
-import me.Cutiemango.MangoQuest.versions.Version_v1_16_R1;
-import me.Cutiemango.MangoQuest.versions.Version_v1_16_R2;
-import me.Cutiemango.MangoQuest.versions.Version_v1_16_R3;
-import me.Cutiemango.MangoQuest.versions.Version_v1_17_R1;
 
 public class Main extends JavaPlugin {
 	private static Main instance;
@@ -56,40 +49,11 @@ public class Main extends JavaPlugin {
 
 		getServer().getPluginManager().registerEvents(new MainListener(), this);
 
-		String version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
-		switch (version) {
-			case "v1_13_R1":
-				handler = new Version_v1_13_R1();
-				break;
-			case "v1_13_R2":
-				handler = new Version_v1_13_R2();
-				break;
-			case "v1_14_R1":
-				handler = new Version_v1_14_R1();
-				break;
-			case "v1_15_R1":
-				handler = new Version_v1_15_R1();
-				break;
-			case "v1_16_R1":
-				handler = new Version_v1_16_R1();
-				break;
-			case "v1_16_R2":
-				handler = new Version_v1_16_R2();
-				break;
-			case "v1_16_R3":
-				handler = new Version_v1_16_R3();
-				QuestChatManager.logCmd(Level.WARNING, I18n.locMsg("Cmdlog.TestingVersion"));
-				break;
-			case "v1_17_R1":
-				handler = new Version_v1_17_R1();
-				QuestChatManager.logCmd(Level.WARNING, I18n.locMsg("Cmdlog.TestingVersion"));
-				break;
-			default:
-				QuestChatManager.logCmd(Level.SEVERE, I18n.locMsg("Cmdlog.VersionNotSupported1"));
-				QuestChatManager.logCmd(Level.SEVERE, I18n.locMsg("Cmdlog.VersionNotSupported2"));
-				break;
+		handler = new ModernVersionHandler();
+		String version = Bukkit.getBukkitVersion();
+		if (!version.startsWith("1.20") && !version.startsWith("1.21")) {
+			QuestChatManager.logCmd(Level.WARNING, I18n.locMsg("Cmdlog.TestingVersion"));
 		}
-
 		QuestChatManager.logCmd(Level.INFO, I18n.locMsg("Cmdlog.LoadedNMSVersion", version));
 
 		new BukkitRunnable() {

@@ -1,6 +1,5 @@
 package me.Cutiemango.MangoQuest.manager;
 
-import io.lumine.xikage.mythicmobs.mobs.MythicMob;
 import me.Cutiemango.MangoQuest.DebugHandler;
 import me.Cutiemango.MangoQuest.Main;
 import me.Cutiemango.MangoQuest.conversation.FriendConversation;
@@ -127,8 +126,7 @@ public class QuestValidater
 	public static boolean validateMythicMob(String id) {
 		if (!Main.getHooker().hasMythicMobEnabled())
 			return false;
-		MythicMob m = Main.getHooker().getMythicMob(id);
-		return m != null;
+		return Main.getHooker().getMythicMob(id) != null;
 	}
 
 	public static boolean validateNPC(String id) {
